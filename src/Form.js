@@ -1,23 +1,24 @@
 import React, { useEffect, useState } from "react";
 import * as yup from "yup";
+import axios from "axios";
 import "./Form.css";
 
 export default function Form() {
+  const [orders, setOrders] = useState([]);
+
   const [pizzaOrder, setPizzaOrder] = useState({
     name: "",
     size: "",
-    sauce: "",
-    cheese: "",
-    peppers: "",
-    pepperoni: "",
-    olives: "",
+    cheese: false,
+    peppers: false,
+    pepperoni: false,
+    olives: false,
     instructions: "",
   });
 
   const [errors, setErrors] = useState({
     name: "",
     size: "",
-    sauce: "",
     cheese: "",
     peppers: "",
     pepperoni: "",
@@ -25,7 +26,7 @@ export default function Form() {
     instructions: "",
   });
 
-  //validation and schema
+//#region formSchema, validateChange, useEffect
 
   const formSchema = yup.object().shape({
     name: yup
@@ -33,11 +34,10 @@ export default function Form() {
       .required("need name")
       .min(2, "name must be at least 2 characters"),
     size: yup.string().required("Select a pizza size"),
-    sauce: yup.string().required("Select a sauce"),
-    cheese: yup.string(),
-    peppers: yup.string(),
-    pepperoni: yup.string(),
-    olives: yup.string(),
+    cheese: yup.boolean(),
+    peppers: yup.boolean(),
+    pepperoni: yup.boolean(),
+    olives: yup.boolean(),
     instructions: yup.string(),
   });
 
@@ -59,13 +59,28 @@ export default function Form() {
     });
   }, [pizzaOrder]);
 
-  //----------END
+//#endregion
 
-  //Functions for submit and change
+//#region formSubmit and onChangeHandler
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
   const formSubmit = (e) => {
     e.preventDefault();
+    axios
+    .post("https://reqres.in/api/orders", pizzaOrder)
+    .then((response) => {
+      setOrders(response.data);
+      setPizzaOrder({
+        name: "",
+        size: "",
+        cheese: "",
+        peppers: "",
+        pepperoni: "",
+        olives: "",
+        instructions: "",
+      });
+    })
+    .catch((err) => console.log(err.response));
     console.log("Form submitted", e);
   };
 
@@ -73,11 +88,12 @@ export default function Form() {
     e.persist();
     const newFormData = {
       ...pizzaOrder,
-      [e.target.name]: e.target.value,
+      [e.target.name]:  e.target.type === "checkbox" ? e.target.checked : e.target.value,
     };
     validateChange(e);
     setPizzaOrder(newFormData);
   };
+//#endregion
 
   return (
     <div className="pizza-form">
@@ -94,7 +110,7 @@ export default function Form() {
       <h2>Build Your Own Pizza</h2>
 
       {/* Beginning of Form */}
-      <form onSubmit={formSubmit}>
+      <form id="pizza-form" onSubmit={formSubmit}>
 
         {/* Name on the order */}
         <label htmlFor="name-input">
@@ -119,60 +135,19 @@ export default function Form() {
           <p>Required</p>
         </div>
 
-        <label htmlFor="size"></label>
-        <select name="size" id="size" onChange={onChangeHandler}>
+        <label htmlFor="size-dropdown"></label>
+        <select name="size" id="size-dropdown" onChange={onChangeHandler}>
           <option value="">Select</option>
           <option value="small">Small (1-2 people)</option>
           <option value="medium">Medium (3-4 people)</option>
           <option value="large">Large (5-7 people)</option>
         </select>
+        {errors.size.length > 0 ? (
+            <p className="error" data-cy="nameError">
+              {errors.size}
+            </p>
+          ) : null}
 
-        {/* Choice of Sauce */}
-        <div className="sectionDivider">
-          <h3>Choice of Sauce</h3>
-          <p>Required</p>
-        </div>
-
-        <div className="form-section">
-          <label htmlFor="sauce"></label>
-          <div className="radio">
-            <input
-              id="red"
-              type="radio"
-              value="red"
-              name="sauce"
-              onChange={onChangeHandler}
-            ></input>
-            <label htmlFor="red">Original Red</label>
-            <br></br>
-            <input
-              id="garlic"
-              type="radio"
-              value="garlic"
-              name="sauce"
-              onChange={onChangeHandler}
-            ></input>
-            <label htmlFor="garlic">Garlic Ranch</label>
-            <br></br>
-            <input
-              id="bbq"
-              type="radio"
-              value="bbq"
-              name="sauce"
-              onChange={onChangeHandler}
-            ></input>
-            <label htmlFor="bbq">BBQ Sauce</label>
-            <br></br>
-            <input
-              id="s_alfredo"
-              type="radio"
-              value="s_alfredo"
-              name="sauce"
-              onChange={onChangeHandler}
-            ></input>
-            <label htmlFor="s_alfredo">Spinach Alfredo</label>
-          </div>
-        </div>
 
         {/* Choice of Toppings */}
         <div className="sectionDivider">
@@ -184,7 +159,7 @@ export default function Form() {
           <input
             id="cheese_chkbox"
             type="checkbox"
-            value="cheese"
+            
             name="cheese"
             onChange={onChangeHandler}
           ></input>
@@ -193,7 +168,7 @@ export default function Form() {
           <input
             id="peppers_chkbox"
             type="checkbox"
-            value="peppers"
+            
             name="peppers"
             onChange={onChangeHandler}
           ></input>
@@ -202,7 +177,7 @@ export default function Form() {
           <input
             id="pepperoni_chkbox"
             type="checkbox"
-            value="pepperoni"
+            
             name="pepperoni"
             onChange={onChangeHandler}
           ></input>
@@ -211,7 +186,7 @@ export default function Form() {
           <input
             id="olives_chkbox"
             type="checkbox"
-            value="olives"
+            
             name="olives"
             onChange={onChangeHandler}
           ></input>
@@ -224,9 +199,9 @@ export default function Form() {
           <h3>Special Instructions</h3>
         </div>
         <div className="form-section">
-          <label htmlFor="instructions"></label>
+          <label htmlFor="special-text"></label>
           <textarea
-            id="instructions"
+            id="special-text"
             name="instructions"
             rows="4"
             cols="40"
@@ -242,6 +217,7 @@ export default function Form() {
             value="Add to Order"
           ></input>
         </div>
+        <pre data-cy="output">{JSON.stringify(orders, null, 2)}</pre>
       </form>
     </div>
   );

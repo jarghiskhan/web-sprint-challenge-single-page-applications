@@ -12,13 +12,13 @@ const App = () => {
           <Link to="/">
             <button>Home</button>
           </Link>
-          <Link to="/order-pizza">
-            <button>Order</button>
+          <Link to="/pizza">
+            <button id="order-pizza">Order</button>
           </Link>
         </div>
       </div>
       <br></br>
-      <Route path="/order-pizza">
+      <Route path="/pizza">
         <Form></Form>
       </Route>
       <Route exact path="/">
