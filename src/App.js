@@ -1,10 +1,29 @@
 import React from "react";
+import "./App.css";
+import { Route, Link } from "react-router-dom";
+import Form from "./Form";
 
 const App = () => {
   return (
     <>
-      <h1>Lambda Eats</h1>
-      <p>You can remove this code and create your own header</p>
+      <div className="header">
+        <h1>Lambda Eats</h1>
+        <div className="navBar">
+          <Link to="/">
+            <button>Home</button>
+          </Link>
+          <Link to="/order-pizza">
+            <button>Order</button>
+          </Link>
+        </div>
+      </div>
+      <br></br>
+      <Route path="/order-pizza">
+        <Form></Form>
+      </Route>
+      <Route exact path="/">
+        <div>Best pizza in town. Press the order button to begin ordering.</div>
+      </Route>
     </>
   );
 };
