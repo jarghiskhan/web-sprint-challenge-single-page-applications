@@ -4,7 +4,7 @@ import axios from "axios";
 import "./Form.css";
 
 export default function Form() {
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState();
 
   const [pizzaOrder, setPizzaOrder] = useState({
     name: "",
@@ -136,7 +136,7 @@ export default function Form() {
         </div>
 
         <label htmlFor="size-dropdown"></label>
-        <select name="size" id="size-dropdown" onChange={onChangeHandler}>
+        <select name="size" id="size-dropdown" data-cy="size" onChange={onChangeHandler}>
           <option value="">Select</option>
           <option value="small">Small (1-2 people)</option>
           <option value="medium">Medium (3-4 people)</option>
